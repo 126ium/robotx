@@ -8,28 +8,32 @@ Usage: python runtests.py
 
 import os
 import tempfile
+import unittest
+import traceback
 
 from robot import run
 
+class RunTestCase(unittest.TestCase):
+    def setUp(self):
+        self.test_path = os.path.curdir
+        tmp_path = tempfile.gettempdir()
+        self.output_dir = os.path.join(tmp_path, "robotx_test_result")
+        os.mkdir(self.output_dir)
+        self.output_file = os.path.join(self.output_dir, "output.xml")
+        self.log_file = os.path.join(self.output_dir, "log.html")
+        self.report_file = os.path.join(self.output_dir, "report.html")
+        self.suites = ["test_cmd_*"]
 
-def run_tests():
-    test_path = os.path.curdir
-    tmp_path = tempfile.gettempdir()
-    output_dir = os.path.join(tmp_path, "robotx_test_result")
-    os.mkdir(output_dir)
-    output_file = os.path.join(output_dir, "output.xml")
-    log_file = os.path.join(output_dir, "log.html")
-    report_file = os.path.join(output_dir, "report.html")
-
-    suites = ["test_cmd_*"]
-
-    run(test_path,
-        suite=suites,
-        outputdir=output_dir,
-        output=output_file,
-        log=log_file,
-        report=report_file)
-
+    def test_run():
+        try:
+            run(self.test_path,
+                suite=self.suites,
+                outputdir=self.output_dir,
+                output=self.output_file,
+                log=self.log_file,
+                report=self.report_file)
+        except Exception as excpetion:
+            self.fail("robot.run() raised a Exception.\n%s" % traceback.print_exc())
 
 if __name__ == '__main__':
-    run_tests()
+    unittest.main()
